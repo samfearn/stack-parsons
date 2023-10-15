@@ -6,27 +6,3 @@ zip(list1,list2):=makelist([list1[i],list2[i]],i,1,min(length(list1),length(list
 auto_map(list):=block(listlen:length(list),if is(equal(listlen,0)) then return([]),keys:autokeys(listlen),listMap:zip(keys,list),push("stack_map",listMap));
 auto_map(list1,list2):=(listlen1:length(list1),listlen2:length(list2),listlen:listlen1+listlen2,keys:autokeys(listlen),listMap1:zip(firstn(keys,listlen1),list1),list1:push("stack_map",listMap1),listMap2:zip(lastn(keys,listlen2),list2),list2:push("stack_map",listMap2),[list1,list2]);
 r(n):=rand_with_prohib(-n,n,[0]);
-
-stateString:stackjson_parse(statestringinput);
-sakeys:stackmap_keys(stackmap_get(stateString,"correct"));
-correctkeys:stackmap_keys(correctlist);
-n:length(correctkeys);
-lenans:length(sakeys);
-
-sans_elt_exists(i):= (if (is(i>0) and (i<=lenans)) then true else false);
-keys_elt_exists(i):= (if (is(i>0) and (i<=n)) then true else false);
-sans_prec_exists(i):= (if (is(i>1) and (i<=lenans)) then true else false);
-sans_succ_exists(i):= (if (is(i>0) and (i<lenans)) then true else false);
-keys_prec_exists(i):= (if (is(i>1) and (i<=n)) then true else false);
-keys_succ_exists(i):= (if (is(i>0) and (i<n)) then true else false);
-
-sans_prec(i):= (if sans_prec_exists(i) then sakeys[i-1] else false);
-sans_succ(i):=(if sans_succ_exists(i) then sakeys[i+1] else false);
-keys_prec(i,keyslist):=block(if sans_elt_exists(i) then indices:sublist_indices(keyslist,lambda([x],is(equal(x,sakeys[i])))) else return(false),if is(length(indices)>0) then (j:first(indices), if keys_prec_exists(j) then keyslist[j-1] else false) else false );
-keys_succ(i,keyslist):=block(if sans_elt_exists(i) then indices:sublist_indices(keyslist,lambda([x],is(equal(x,sakeys[i])))) else return(false),if is(length(indices)>0) then (j:first(indices), if keys_succ_exists(j) then keyslist[j+1] else false) else false );
-check_prec(i,keyslist):=is(sans_elt_exists(i) and member(sakeys[i],keyslist) and equal(sans_prec(i),keys_prec(i,keyslist)));
-check_succ(i,keyslist):=is(sans_elt_exists(i) and member(sakeys[i],keyslist) and equal(sans_succ(i),keys_succ(i,keyslist)));
-
-alternatecorrectkeys:makelist(correctkeys[i],i,alternates);
-
-mark_ans:block(mark:0,for keyindex:1 thru lenans do (if is(check_prec(keyindex,correctkeys) or check_prec(keyindex,alternatecorrectkeys)) then (mark:mark + 1/(2*n)), if is(check_succ(keyindex,correctkeys) or check_succ(keyindex,alternatecorrectkeys)) then (mark:mark + 1/(2*n))),return(mark));
